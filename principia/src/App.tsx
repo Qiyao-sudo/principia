@@ -5,7 +5,7 @@ import { HandwritingCanvas } from './components/HandwritingCanvas'
 import type { BackgroundType } from './components/HandwritingCanvas'
 import type { HandwritingCanvasRef } from './components/HandwritingCanvas'
 import { Renderer } from './components/Renderer'
-import { Download, Settings, PenTool, Type, X, ArrowRightLeft, Sparkles, FileImage, Archive, Clock, BookOpen, Sun, Moon } from 'lucide-react';
+import { Download, Settings, PenTool, Type, X, ArrowRightLeft, Sparkles, FileImage, Archive, Clock, BookOpen, Sun, Moon, Trash2 } from 'lucide-react';
 import { saveAs } from 'file-saver'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Portal } from './components/Portal'
@@ -1288,7 +1288,7 @@ ${explanations.join("\n\\hrule\n")}
                                     className="text-muted-foreground hover:text-red-400 transition-colors p-1"
                                     title={lang === 'en' ? 'Clear History' : '清除历史'}
                                 >
-                                    <X size={18} />
+                                    <Trash2 size={18} />
                                 </button>
                                 <button 
                                     onClick={() => setIsHistoryOpen(false)}
