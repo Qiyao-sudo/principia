@@ -101,13 +101,6 @@ export function SettingsSidebar({ isOpen, onClose, onSave, lang, onLangChange }:
                                 <span>{t.title}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <button 
-                                    onClick={() => onLangChange(lang === 'en' ? 'zh' : 'en')}
-                                    className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md hover:bg-muted"
-                                    title="Switch Language"
-                                >
-                                    <Languages size={18} />
-                                </button>
                                 <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors p-1">
                                     <X size={20} />
                                 </button>

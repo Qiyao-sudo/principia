@@ -5,7 +5,7 @@ import { HandwritingCanvas } from './components/HandwritingCanvas'
 import type { BackgroundType } from './components/HandwritingCanvas'
 import type { HandwritingCanvasRef } from './components/HandwritingCanvas'
 import { Renderer } from './components/Renderer'
-import { Download, Settings, PenTool, Type, X, ArrowRightLeft, Sparkles, FileImage, Archive, Clock, BookOpen, Sun, Moon, Trash2 } from 'lucide-react';
+import { Download, Settings, PenTool, Type, X, ArrowRightLeft, Sparkles, FileImage, Archive, Clock, BookOpen, Sun, Moon, Trash2, Languages } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { saveAs } from 'file-saver'
@@ -846,18 +846,18 @@ ${explanations.join("\n\\hrule\n")}
                  <button 
                     onClick={() => setInputMode('text')}
                     className={`p-1.5 rounded-md transition-all flex items-center gap-1.5 ${inputMode === 'text' ? 'bg-accent text-accent-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-                    title="Text Editor Mode"
+                    title={lang === 'en' ? 'Text Editor Mode' : '文本编辑器模式'}
                  >
                     <Type size={14} />
-                    <span className="text-[10px] font-medium hidden sm:inline">Text</span>
+                    <span className="text-[10px] font-medium hidden sm:inline">{lang === 'en' ? 'Text' : '文本'}</span>
                  </button>
                  <button 
                     onClick={() => setInputMode('handwriting')}
                     className={`p-1.5 rounded-md transition-all flex items-center gap-1.5 ${inputMode === 'handwriting' ? 'bg-accent text-accent-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-                    title="Handwriting Mode"
+                    title={lang === 'en' ? 'Handwriting Mode' : '手写模式'}
                  >
                     <PenTool size={14} />
-                    <span className="text-[10px] font-medium hidden sm:inline">Draw</span>
+                    <span className="text-[10px] font-medium hidden sm:inline">{lang === 'en' ? 'Draw' : '绘图'}</span>
                  </button>
               </div>
           )}
@@ -874,6 +874,14 @@ ${explanations.join("\n\\hrule\n")}
             </button>
           )}
 
+          <button 
+            onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
+            className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+            title={lang === 'en' ? 'Switch to Chinese' : '切换到英文'}
+          >
+            <Languages size={16} />
+          </button>
+          
           <button 
             onClick={() => setIsSettingsOpen(true)}
             className="flex items-center gap-2 p-2 text-muted-foreground hover:text-foreground transition-colors"
