@@ -172,7 +172,7 @@ export function InteractiveBadge({ id, content, title = "Physics Model Analysis"
                 left: position.left - 20, // 20px gap
                 transformOrigin: `right ${verticalAlign === "-50%" ? "center" : verticalAlign === "0%" ? "top" : "bottom"}`
               }}
-              className="w-96 bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl p-4 z-[9999] text-zinc-100 max-h-[500px] overflow-y-auto custom-scrollbar"
+              className="w-96 bg-card border border-border rounded-xl shadow-2xl p-4 z-[9999] text-foreground max-h-[500px] overflow-y-auto custom-scrollbar"
             >
               <div className="flex justify-between items-start mb-2">
                 <div className="flex items-center gap-2 text-green-400">
@@ -185,26 +185,26 @@ export function InteractiveBadge({ id, content, title = "Physics Model Analysis"
                         const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
                         saveAs(blob, 'equation_fragment.tex');
                      }}
-                     className="text-zinc-500 hover:text-green-400 transition-colors" 
+                     className="text-muted-foreground hover:text-green-400 transition-colors" 
                      title="Download Fragment"
                    >
                       <Download size={14} />
                    </button>
-                   <button onClick={() => setIsOpen(false)} className="text-zinc-500 hover:text-red-500 transition-colors p-1" title="Close">
+                   <button onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-red-500 transition-colors p-1" title="Close">
                       <X size={18} />
                    </button>
                 </div>
               </div>
               
-              <div className="text-sm text-zinc-400 mb-3 leading-relaxed">
+              <div className="text-sm text-muted-foreground mb-3 leading-relaxed">
                 {isLoading ? (
-                    <div className="flex items-center gap-2 text-zinc-500 py-4">
+                    <div className="flex items-center gap-2 text-muted-foreground py-4">
                         <Loader2 size={16} className="animate-spin" />
                         <span>Analyzing with AI...</span>
                     </div>
                 ) : analysis ? (
                     <div className="space-y-4">
-                        <div className="text-sm text-zinc-300">
+                        <div className="text-sm text-foreground">
                             <ReactMarkdown 
                               remarkPlugins={[remarkMath]} 
                               rehypePlugins={[[rehypeKatex, { trust: true, strict: false }], rehypeRaw]}
@@ -213,7 +213,7 @@ export function InteractiveBadge({ id, content, title = "Physics Model Analysis"
                             </ReactMarkdown>
                         </div>
                         {analysis.visualization && (
-                            <div className="rounded-lg overflow-hidden border border-zinc-800 bg-black relative min-h-[200px]">
+                            <div className="rounded-lg overflow-hidden border border-border bg-card relative min-h-[200px]">
                                 <iframe 
                                     srcDoc={`
                                         <html>
@@ -238,7 +238,7 @@ export function InteractiveBadge({ id, content, title = "Physics Model Analysis"
                 )}
               </div>
 
-              <div className="bg-zinc-900 p-2 rounded-md border border-zinc-800 mb-3 overflow-x-auto text-xs font-mono text-zinc-500 max-h-20 overflow-y-auto">
+              <div className="bg-muted p-2 rounded-md border border-border mb-3 overflow-x-auto text-xs font-mono text-muted-foreground max-h-20 overflow-y-auto">
                  {content}
               </div>
             </motion.div>

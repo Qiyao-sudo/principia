@@ -69,7 +69,7 @@ export function Renderer({ content, settings, analysisData, onAnalysisUpdate }: 
 
           const latexHtml = katex.renderToString(part.replace(/^\$\$|^\\\[|\$\$$/g, '').replace(/\\\]$/,'').trim(), { displayMode: true, throwOnError: false, trust: true });
           return (
-            <div key={index} className="flex items-start group relative my-6 bg-zinc-900/30 p-6 rounded-xl border border-zinc-800/50 hover:border-zinc-700 transition-all hover:bg-zinc-900/80 hover:shadow-lg">
+            <div key={index} className="flex items-start group relative my-6 bg-muted/30 p-6 rounded-xl border border-border/50 hover:border-border transition-all hover:bg-muted/80 hover:shadow-lg">
               <div className="flex-1 overflow-x-auto" dangerouslySetInnerHTML={{ __html: latexHtml }} />
               <div className="ml-4 mt-1 shrink-0">
                 <InteractiveBadge 
@@ -92,7 +92,7 @@ export function Renderer({ content, settings, analysisData, onAnalysisUpdate }: 
           const processedText = preprocessLatexForPreview(part);
 
           return (
-             <div key={index} className="space-y-4 text-zinc-300 leading-relaxed text-lg">
+             <div key={index} className="space-y-4 text-foreground leading-relaxed text-lg">
                 <ReactMarkdown 
                     remarkPlugins={[remarkMath]} 
                     rehypePlugins={[[rehypeKatex, { trust: true, strict: false }], rehypeRaw]}
@@ -108,7 +108,7 @@ export function Renderer({ content, settings, analysisData, onAnalysisUpdate }: 
       })}
       
       {parts.length === 0 && (
-        <div className="text-zinc-500 italic text-center mt-20">
+        <div className="text-muted-foreground italic text-center mt-20">
           Start writing on the left to see the AI analysis...
         </div>
       )}
