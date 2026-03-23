@@ -27,7 +27,7 @@ def generate_ocr_cache_key(image_data, previous_context, next_context):
 PORT = 8000
 
 # Initialize Flask App
-app = Flask(__name__, static_folder='principia')
+app = Flask(__name__, static_folder='principia/dist')
 CORS(app)  # Enable CORS for all routes
 
 @app.route('/api/analyze', methods=['POST'])
@@ -412,7 +412,7 @@ def serve(path):
     if path != "" and os.path.exists(app.static_folder + '/' + path):
         return send_from_directory(app.static_folder, path)
     else:
-        return send_from_directory(app.static_folder, 'dev.html')
+        return send_from_directory(app.static_folder, 'index.html')
 
 if __name__ == "__main__":
     print(f"--------------------------------------------------")

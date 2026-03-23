@@ -6,13 +6,13 @@ interface EditorProps {
 
 export function Editor({ value, onChange }: EditorProps) {
   return (
-    <div className="h-full w-full bg-[#0a0a0a] p-8 flex flex-col border-r border-zinc-900">
-      <div className="mb-4 flex items-center gap-2 text-zinc-500 text-xs uppercase tracking-widest font-semibold">
+    <div className="h-full w-full bg-background p-8 flex flex-col border-r border-border">
+      <div className="mb-4 flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-widest font-semibold">
         <span className="w-2 h-2 rounded-full bg-blue-500"></span>
         Source Input
       </div>
       <textarea
-        className="w-full h-full bg-transparent text-zinc-300 resize-none outline-none font-mono text-sm leading-7 placeholder:text-zinc-700 custom-scrollbar overflow-y-auto"
+        className="w-full h-full bg-transparent text-foreground resize-none outline-none font-mono text-sm leading-7 placeholder:text-muted-foreground/50 custom-scrollbar overflow-y-auto"
         placeholder="# Newtonian Mechanics
         
 Consider a particle of mass $m$ moving under the influence of a potential $V(x)$. 

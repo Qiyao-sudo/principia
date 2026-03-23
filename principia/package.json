@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -k -n \"VITE,BACKEND\" -c \"cyan.bold,green.bold\" \"vite\" \"cd .. && python app.py\"",
+    "dev": "concurrently -k -n \"VITE,BACKEND\" -c \"cyan.bold,green.bold\" \"vite\" \"node scripts/start-backend.js\"",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",

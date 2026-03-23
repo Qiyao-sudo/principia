@@ -84,7 +84,7 @@ export function SettingsSidebar({ isOpen, onClose, onSave, lang, onLangChange }:
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]"
+                        className="fixed inset-0 bg-background/50 backdrop-blur-sm z-[9998]"
                     />
 
                     {/* Sidebar */}
@@ -93,22 +93,15 @@ export function SettingsSidebar({ isOpen, onClose, onSave, lang, onLangChange }:
                         animate={{ x: 0 }}
                         exit={{ x: "100%" }}
                         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                        className="fixed right-0 top-0 h-full w-96 bg-zinc-950 border-l border-zinc-800 shadow-2xl z-[9999] flex flex-col"
+                        className="fixed right-0 top-0 h-full w-96 bg-card border-l border-border shadow-2xl z-[9999] flex flex-col"
                     >
-                        <div className="flex items-center justify-between p-6 border-b border-zinc-800">
-                            <div className="flex items-center gap-2 text-white font-semibold text-lg">
+                        <div className="flex items-center justify-between p-6 border-b border-border">
+                            <div className="flex items-center gap-2 text-foreground font-semibold text-lg">
                                 <Settings size={20} />
                                 <span>{t.title}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <button 
-                                    onClick={() => onLangChange(lang === 'en' ? 'zh' : 'en')}
-                                    className="text-zinc-500 hover:text-white transition-colors p-1 rounded-md hover:bg-zinc-800"
-                                    title="Switch Language"
-                                >
-                                    <Languages size={18} />
-                                </button>
-                                <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors p-1">
+                                <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors p-1">
                                     <X size={20} />
                                 </button>
                             </div>
@@ -117,42 +110,42 @@ export function SettingsSidebar({ isOpen, onClose, onSave, lang, onLangChange }:
                         <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
                             {/* Reasoning API Section */}
                             <div className="space-y-4">
-                                <div className="flex items-center gap-2 text-green-400 font-medium border-b border-zinc-800 pb-2">
+                                <div className="flex items-center gap-2 text-green-400 font-medium border-b border-border pb-2">
                                     <Brain size={18} />
                                     <span>{t.reasoningTitle}</span>
                                 </div>
-                                <p className="text-xs text-zinc-500 leading-relaxed">
+                                <p className="text-xs text-muted-foreground leading-relaxed">
                                     {t.reasoningDesc}
                                 </p>
                                 
                                 <div className="space-y-3">
                                     <div>
-                                        <label className="block text-xs font-medium text-zinc-400 mb-1">{t.baseUrl}</label>
+                                        <label className="block text-xs font-medium text-muted-foreground mb-1">{t.baseUrl}</label>
                                         <input 
                                             type="text" 
                                             value={reasoningConfig.baseUrl}
                                             onChange={e => setReasoningConfig({...reasoningConfig, baseUrl: e.target.value})}
-                                            className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-green-500 transition-colors"
+                                            className="w-full bg-muted border border-border rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-green-500 transition-colors"
                                             placeholder="https://api.deepseek.com/v1"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-zinc-400 mb-1">{t.apiKey}</label>
+                                        <label className="block text-xs font-medium text-muted-foreground mb-1">{t.apiKey}</label>
                                         <input 
                                             type="password" 
                                             value={reasoningConfig.apiKey}
                                             onChange={e => setReasoningConfig({...reasoningConfig, apiKey: e.target.value})}
-                                            className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-green-500 transition-colors"
+                                            className="w-full bg-muted border border-border rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-green-500 transition-colors"
                                             placeholder="sk-..."
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-zinc-400 mb-1">{t.modelName}</label>
+                                        <label className="block text-xs font-medium text-muted-foreground mb-1">{t.modelName}</label>
                                         <input 
                                             type="text" 
                                             value={reasoningConfig.model}
                                             onChange={e => setReasoningConfig({...reasoningConfig, model: e.target.value})}
-                                            className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-green-500 transition-colors"
+                                            className="w-full bg-muted border border-border rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-green-500 transition-colors"
                                             placeholder="deepseek-chat"
                                         />
                                     </div>
@@ -161,42 +154,42 @@ export function SettingsSidebar({ isOpen, onClose, onSave, lang, onLangChange }:
 
                             {/* Vision API Section */}
                             <div className="space-y-4">
-                                <div className="flex items-center gap-2 text-blue-400 font-medium border-b border-zinc-800 pb-2">
+                                <div className="flex items-center gap-2 text-blue-400 font-medium border-b border-border pb-2">
                                     <Eye size={18} />
                                     <span>{t.visionTitle}</span>
                                 </div>
-                                <p className="text-xs text-zinc-500 leading-relaxed">
+                                <p className="text-xs text-muted-foreground leading-relaxed">
                                     {t.visionDesc}
                                 </p>
                                 
                                 <div className="space-y-3">
                                     <div>
-                                        <label className="block text-xs font-medium text-zinc-400 mb-1">{t.baseUrl}</label>
+                                        <label className="block text-xs font-medium text-muted-foreground mb-1">{t.baseUrl}</label>
                                         <input 
                                             type="text" 
                                             value={visionConfig.baseUrl}
                                             onChange={e => setVisionConfig({...visionConfig, baseUrl: e.target.value})}
-                                            className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
+                                            className="w-full bg-muted border border-border rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-blue-500 transition-colors"
                                             placeholder="https://generativelanguage.googleapis.com/v1beta/openai/"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-zinc-400 mb-1">{t.apiKey}</label>
+                                        <label className="block text-xs font-medium text-muted-foreground mb-1">{t.apiKey}</label>
                                         <input 
                                             type="password" 
                                             value={visionConfig.apiKey}
                                             onChange={e => setVisionConfig({...visionConfig, apiKey: e.target.value})}
-                                            className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
+                                            className="w-full bg-muted border border-border rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-blue-500 transition-colors"
                                             placeholder="sk-..."
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-zinc-400 mb-1">{t.modelName}</label>
+                                        <label className="block text-xs font-medium text-muted-foreground mb-1">{t.modelName}</label>
                                         <input 
                                             type="text" 
                                             value={visionConfig.model}
                                             onChange={e => setVisionConfig({...visionConfig, model: e.target.value})}
-                                            className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
+                                            className="w-full bg-muted border border-border rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-blue-500 transition-colors"
                                             placeholder="gemini-1.5-flash"
                                         />
                                     </div>
@@ -204,10 +197,10 @@ export function SettingsSidebar({ isOpen, onClose, onSave, lang, onLangChange }:
                             </div>
                         </div>
 
-                        <div className="p-6 border-t border-zinc-800 bg-zinc-900/50">
+                        <div className="p-6 border-t border-border bg-muted/50">
                             <button 
                                 onClick={handleSave}
-                                className="w-full flex items-center justify-center gap-2 bg-white text-black font-semibold py-2.5 rounded-lg hover:bg-zinc-200 transition-colors"
+                                className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground font-semibold py-2.5 rounded-lg hover:bg-primary/90 transition-colors"
                             >
                                 <Save size={18} />
                                 {t.save}

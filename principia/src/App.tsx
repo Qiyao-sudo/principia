@@ -5,7 +5,9 @@ import { HandwritingCanvas } from './components/HandwritingCanvas'
 import type { BackgroundType } from './components/HandwritingCanvas'
 import type { HandwritingCanvasRef } from './components/HandwritingCanvas'
 import { Renderer } from './components/Renderer'
-import { Download, Settings, PenTool, Type, X, ArrowRightLeft, Sparkles, FileImage, Archive, Clock, BookOpen } from 'lucide-react';
+import { Download, Settings, PenTool, Type, X, ArrowRightLeft, Sparkles, FileImage, Archive, Clock, BookOpen, Sun, Moon, Trash2, Languages } from 'lucide-react';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 import { saveAs } from 'file-saver'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Portal } from './components/Portal'
@@ -43,7 +45,7 @@ function App() {
   const [inputMode, setInputMode] = useState<'text' | 'handwriting'>('text');
   const [isRecognizing, setIsRecognizing] = useState(false);
   const [ocrProgress, setOcrProgress] = useState<number>(0);
-  const [ocrTaskId, setOcrTaskId] = useState<string | null>(null);
+  const [_ocrTaskId, setOcrTaskId] = useState<string | null>(null);
   const [handwritingData, setHandwritingData] = useState<string>("");
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -67,6 +69,27 @@ function App() {
   // Mobile Support State
   const [isMobile, setIsMobile] = useState(false);
   const [mobileViewMode, setMobileViewMode] = useState<'write' | 'type' | 'preview'>('write');
+  
+  // Theme State
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    // Check system preference or stored preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      return savedTheme === 'dark';
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  // Apply theme
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
 
   // Export Options State
   const [exportIncludePDF, setExportIncludePDF] = useState(false);
@@ -163,15 +186,23 @@ function App() {
         { name: lang === 'en' ? 'Sum of Squares' : '平方和', latex: "a^2 + b^2 = (a + b)^2 - 2ab" },
         { name: lang === 'en' ? 'Difference of Squares' : '平方差', latex: "a^2 - b^2 = (a - b)(a + b)" },
         { name: lang === 'en' ? 'Binomial Theorem' : '二项式定理', latex: "(a + b)^n = \\sum_{k=0}^{n} \\binom{n}{k} a^{n-k} b^k" },
+        { name: lang === 'en' ? 'Sum of Cubes' : '立方和', latex: "a^3 + b^3 = (a + b)(a^2 - ab + b^2)" },
+        { name: lang === 'en' ? 'Difference of Cubes' : '立方差', latex: "a^3 - b^3 = (a - b)(a^2 + ab + b^2)" },
+        { name: lang === 'en' ? 'Arithmetic Series' : '等差数列求和', latex: "S_n = \\frac{n}{2}(a_1 + a_n) = \\frac{n}{2}[2a_1 + (n-1)d]" },
+        { name: lang === 'en' ? 'Geometric Series' : '等比数列求和', latex: "S_n = a_1 \\frac{1 - r^n}{1 - r}, r \\neq 1" },
       ]
     },
     calculus: {
       name: lang === 'en' ? 'Calculus' : '微积分',
       formulas: [
-        { name: lang === 'en' ? 'Derivative of x^n' : 'x^n的导数', latex: "\\frac{d}{dx} x^n = nx^{n-1}" },
-        { name: lang === 'en' ? 'Integral of x^n' : 'x^n的积分', latex: "\\int x^n dx = \\frac{x^{n+1}}{n+1} + C" },
+        { name: lang === 'en' ? 'Derivative of x^n' : 'xⁿ的导数', latex: "\\frac{d}{dx} x^n = nx^{n-1}" },
+        { name: lang === 'en' ? 'Integral of x^n' : 'xⁿ的积分', latex: "\\int x^n dx = \\frac{x^{n+1}}{n+1} + C" },
         { name: lang === 'en' ? 'Chain Rule' : '链式法则', latex: "\\frac{d}{dx} f(g(x)) = f'(g(x)) \\cdot g'(x)" },
         { name: lang === 'en' ? 'Product Rule' : '乘积法则', latex: "\\frac{d}{dx} [f(x)g(x)] = f'(x)g(x) + f(x)g'(x)" },
+        { name: lang === 'en' ? 'Quotient Rule' : '商数法则', latex: "\\frac{d}{dx} \\frac{f(x)}{g(x)} = \\frac{f'(x)g(x) - f(x)g'(x)}{[g(x)]^2}" },
+        { name: lang === 'en' ? 'Basic Limit' : '基本极限', latex: "\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1" },
+        { name: lang === 'en' ? 'Derivative of e^x' : '指数函数的导数', latex: "\\frac{d}{dx} e^x = e^x" },
+        { name: lang === 'en' ? 'Derivative of ln x' : '对数函数的导数', latex: "\\frac{d}{dx} \\ln x = \\frac{1}{x}" },
       ]
     },
     trigonometry: {
@@ -181,6 +212,10 @@ function App() {
         { name: lang === 'en' ? 'Sine Addition' : '正弦加法公式', latex: "\\sin(A + B) = \\sin A \\cos B + \\cos A \\sin B" },
         { name: lang === 'en' ? 'Cosine Addition' : '余弦加法公式', latex: "\\cos(A + B) = \\cos A \\cos B - \\sin A \\sin B" },
         { name: lang === 'en' ? 'Tangent Formula' : '正切公式', latex: "\\tan \\theta = \\frac{\\sin \\theta}{\\cos \\theta}" },
+        { name: lang === 'en' ? 'Double Angle Formula (Sine)' : '正弦二倍角公式', latex: "\\sin 2\\theta = 2\\sin \\theta \\cos \\theta" },
+        { name: lang === 'en' ? 'Double Angle Formula (Cosine)' : '余弦二倍角公式', latex: "\\cos 2\\theta = \\cos^2 \\theta - \\sin^2 \\theta = 2\\cos^2 \\theta - 1 = 1 - 2\\sin^2 \\theta" },
+        { name: lang === 'en' ? 'Tangent Addition' : '正切加法公式', latex: "\\tan(A + B) = \\frac{\\tan A + \\tan B}{1 - \\tan A \\tan B}" },
+        { name: lang === 'en' ? 'Cotangent Formula' : '余切公式', latex: "\\cot \\theta = \\frac{\\cos \\theta}{\\sin \\theta} = \\frac{1}{\\tan \\theta}" },
       ]
     },
     physics: {
@@ -190,6 +225,12 @@ function App() {
         { name: lang === 'en' ? 'Kinetic Energy' : '动能', latex: "E_k = \\frac{1}{2}mv^2" },
         { name: lang === 'en' ? 'Potential Energy' : '势能', latex: "E_p = mgh" },
         { name: lang === 'en' ? 'Ohm\'s Law' : '欧姆定律', latex: "V = IR" },
+        { name: lang === 'en' ? 'Gravitational Force' : '万有引力定律', latex: "F = G \\frac{m_1m_2}{r^2}" },
+        { name: lang === 'en' ? 'Work' : '功', latex: "W = Fd \\cos \\theta" },
+        { name: lang === 'en' ? 'Power' : '功率', latex: "P = \\frac{W}{t} = Fv" },
+        { name: lang === 'en' ? 'Momentum' : '动量', latex: "p = mv" },
+        { name: lang === 'en' ? 'Impulse' : '冲量', latex: "J = F\\Delta t = \\Delta p" },
+        { name: lang === 'en' ? 'Centripetal Force' : '向心力', latex: "F_c = \\frac{mv^2}{r}" },
       ]
     }
   };
@@ -787,46 +828,46 @@ ${explanations.join("\n\\hrule\n")}
   };
 
   return (
-    <div className="h-screen w-screen bg-black text-white overflow-hidden flex flex-col">
+    <div className="h-screen w-screen bg-background text-foreground overflow-hidden flex flex-col">
       {/* Header */}
-      <header className="h-14 shrink-0 border-b border-zinc-900 flex items-center justify-between px-4 sm:px-6 bg-black/50 backdrop-blur-md z-50">
+      <header className="h-14 shrink-0 border-b border-border flex items-center justify-between px-4 sm:px-6 bg-background/50 backdrop-blur-md z-50">
         <div className="flex items-center gap-2">
           <button onClick={() => setIsLogoModalOpen(true)} className="outline-none hover:opacity-80 transition-opacity">
             <img src="/favicon.png" alt="Logo" className="w-6 h-6 rounded-full bg-white" />
           </button>
-          <span className="font-semibold tracking-tight text-zinc-100">Principia</span>
-          <span className="px-2 py-0.5 rounded-full bg-zinc-900 text-zinc-500 text-[10px] uppercase font-bold tracking-wider border border-zinc-800 hidden sm:inline-block">Alpha</span>
+          <span className="font-semibold tracking-tight text-foreground">Principia</span>
+          <span className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] uppercase font-bold tracking-wider border border-border hidden sm:inline-block">Alpha</span>
         </div>
         
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Desktop Input Mode Switcher (Hidden on Mobile) */}
           {!isMobile && (
-              <div className="flex bg-zinc-900 rounded-lg p-1 border border-zinc-800 mr-2">
+              <div className="flex bg-muted rounded-lg p-1 border border-border mr-2">
                  <button 
                     onClick={() => setInputMode('text')}
-                    className={`p-1.5 rounded-md transition-all flex items-center gap-1.5 ${inputMode === 'text' ? 'bg-zinc-700 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
-                    title="Text Editor Mode"
+                    className={`p-1.5 rounded-md transition-all flex items-center gap-1.5 ${inputMode === 'text' ? 'bg-accent text-accent-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                    title={lang === 'en' ? 'Text Editor Mode' : '文本编辑器模式'}
                  >
                     <Type size={14} />
-                    <span className="text-[10px] font-medium hidden sm:inline">Text</span>
+                    <span className="text-[10px] font-medium hidden sm:inline">{lang === 'en' ? 'Text' : '文本'}</span>
                  </button>
                  <button 
                     onClick={() => setInputMode('handwriting')}
-                    className={`p-1.5 rounded-md transition-all flex items-center gap-1.5 ${inputMode === 'handwriting' ? 'bg-zinc-700 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
-                    title="Handwriting Mode"
+                    className={`p-1.5 rounded-md transition-all flex items-center gap-1.5 ${inputMode === 'handwriting' ? 'bg-accent text-accent-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                    title={lang === 'en' ? 'Handwriting Mode' : '手写模式'}
                  >
                     <PenTool size={14} />
-                    <span className="text-[10px] font-medium hidden sm:inline">Draw</span>
+                    <span className="text-[10px] font-medium hidden sm:inline">{lang === 'en' ? 'Draw' : '绘图'}</span>
                  </button>
               </div>
           )}
 
-          {!isMobile && <div className="w-px h-4 bg-zinc-800 mx-1"></div>}
+          {!isMobile && <div className="w-px h-4 bg-border mx-1"></div>}
 
           {!isMobile && (
             <button 
                 onClick={toggleLeftHanded}
-                className={`p-2 transition-colors rounded-md text-zinc-500 hover:text-white ${isLeftHanded ? 'text-blue-400 hover:text-blue-300' : ''}`}
+                className={`p-2 transition-colors rounded-md text-muted-foreground hover:text-foreground ${isLeftHanded ? 'text-blue-400 hover:text-blue-300' : ''}`}
                 title={isLeftHanded ? "Switch Layout (Input Right)" : "Switch Layout (Input Left)"}
             >
                 <ArrowRightLeft size={16} />
@@ -834,8 +875,16 @@ ${explanations.join("\n\\hrule\n")}
           )}
 
           <button 
+            onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
+            className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+            title={lang === 'en' ? 'Switch to Chinese' : '切换到英文'}
+          >
+            <Languages size={16} />
+          </button>
+          
+          <button 
             onClick={() => setIsSettingsOpen(true)}
-            className="flex items-center gap-2 p-2 text-zinc-500 hover:text-white transition-colors"
+            className="flex items-center gap-2 p-2 text-muted-foreground hover:text-foreground transition-colors"
             title={lang === 'en' ? 'API Settings' : 'API 设置'}
           >
             <Settings size={16} />
@@ -844,7 +893,7 @@ ${explanations.join("\n\\hrule\n")}
           
           <button 
             onClick={() => setIsHistoryOpen(true)}
-            className="flex items-center gap-2 p-2 text-zinc-500 hover:text-white transition-colors"
+            className="flex items-center gap-2 p-2 text-muted-foreground hover:text-foreground transition-colors"
             title={lang === 'en' ? 'History' : '历史记录'}
           >
             <Clock size={16} />
@@ -853,25 +902,34 @@ ${explanations.join("\n\\hrule\n")}
           
           <button 
             onClick={() => setIsFormulaTableOpen(true)}
-            className="flex items-center gap-2 p-2 text-zinc-500 hover:text-white transition-colors"
+            className="flex items-center gap-2 p-2 text-muted-foreground hover:text-foreground transition-colors"
             title={lang === 'en' ? 'Formulas' : '公式表格'}
           >
             <BookOpen size={16} />
             <span className="text-xs font-medium hidden sm:inline">{lang === 'en' ? 'Formulas' : '公式表格'}</span>
           </button>
           
-          <div className="flex bg-zinc-900 rounded-lg p-0.5 border border-zinc-800">
+          <button 
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className="flex items-center gap-2 p-2 text-muted-foreground hover:text-foreground transition-colors"
+            title={isDarkMode ? (lang === 'en' ? 'Light Mode' : '浅色模式') : (lang === 'en' ? 'Dark Mode' : '深色模式')}
+          >
+            {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
+            <span className="text-xs font-medium hidden sm:inline">{isDarkMode ? (lang === 'en' ? 'Light' : '浅色') : (lang === 'en' ? 'Dark' : '深色')}</span>
+          </button>
+          
+          <div className="flex bg-muted rounded-lg p-0.5 border border-border">
              <button 
                 onClick={() => handleFormatSwitch('tex')}
                 disabled={isConverting}
-                className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${downloadFormat === 'tex' ? 'bg-zinc-700 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'} ${isConverting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${downloadFormat === 'tex' ? 'bg-accent text-accent-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'} ${isConverting ? 'opacity-50 cursor-not-allowed' : ''}`}
              >
                 TEX
              </button>
              <button 
                 onClick={() => handleFormatSwitch('md')}
                 disabled={isConverting}
-                className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${downloadFormat === 'md' ? 'bg-zinc-700 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'} ${isConverting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${downloadFormat === 'md' ? 'bg-accent text-accent-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'} ${isConverting ? 'opacity-50 cursor-not-allowed' : ''}`}
              >
                 MD
              </button>
@@ -879,10 +937,11 @@ ${explanations.join("\n\\hrule\n")}
 
           <button 
             onClick={() => setIsExportModalOpen(true)}
-            className="flex items-center gap-2 bg-white text-black px-4 py-1.5 rounded-full text-xs font-semibold hover:bg-zinc-200 transition-colors"
+            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-full text-xs font-semibold hover:bg-primary/90 transition-colors"
+            title={lang === 'en' ? 'Export' : '导出'}
           >
             <Download size={14} />
-            <span className="hidden sm:inline">Export</span>
+            <span className="hidden sm:inline">{lang === 'en' ? 'Export' : '导出'}</span>
           </button>
         </div>
       </header>
@@ -891,12 +950,12 @@ ${explanations.join("\n\\hrule\n")}
       <div className="flex-1 overflow-hidden relative">
         {/* OCR Progress Bar */}
         {isRecognizing && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
-            <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-2xl max-w-md w-full">
-              <h3 className="text-xl font-bold text-white mb-4 text-center">
+          <div className="fixed inset-0 bg-background/70 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+            <div className="bg-card border border-border p-6 rounded-2xl shadow-2xl max-w-md w-full">
+              <h3 className="text-xl font-bold text-foreground mb-4 text-center">
                 {lang === 'en' ? 'Processing OCR...' : '正在处理OCR...'}
               </h3>
-              <div className="w-full bg-zinc-800 rounded-full h-4 mb-4">
+              <div className="w-full bg-muted rounded-full h-4 mb-4">
                 <div 
                   className="bg-blue-500 h-4 rounded-full transition-all duration-300 ease-in-out" 
                   style={{ width: `${ocrProgress}%` }}
@@ -930,10 +989,10 @@ ${explanations.join("\n\\hrule\n")}
                             onPageChange={setCurrentPage}
                         />
                     </div>
-                    <div className={`h-full w-full absolute inset-0 bg-[#0a0a0a] ${mobileViewMode === 'type' ? 'z-10' : 'z-0 invisible'}`}>
+                    <div className={`h-full w-full absolute inset-0 bg-background ${mobileViewMode === 'type' ? 'z-10' : 'z-0 invisible'}`}>
                         <Editor value={content} onChange={setContent} />
                     </div>
-                    <div className={`h-full w-full absolute inset-0 bg-[#050505] ${mobileViewMode === 'preview' ? 'z-10' : 'z-0 invisible'}`}>
+                    <div className={`h-full w-full absolute inset-0 bg-background ${mobileViewMode === 'preview' ? 'z-10' : 'z-0 invisible'}`}>
                         <Renderer 
                             content={content} 
                             settings={settings} 
@@ -944,24 +1003,24 @@ ${explanations.join("\n\\hrule\n")}
                 </div>
                 
                 {/* Mobile Bottom Navigation */}
-                <div className="h-16 bg-zinc-950 border-t border-zinc-900 flex items-center justify-around px-2 shrink-0 z-50 safe-area-bottom">
+                <div className="h-16 bg-card border-t border-border flex items-center justify-around px-2 shrink-0 z-50 safe-area-bottom">
                     <button 
                         onClick={() => setMobileViewMode('write')}
-                        className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg w-full transition-colors ${mobileViewMode === 'write' ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+                        className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg w-full transition-colors ${mobileViewMode === 'write' ? 'text-blue-400' : 'text-muted-foreground hover:text-foreground'}`}
                     >
                         <PenTool size={20} />
                         <span className="text-[10px] font-medium">Write</span>
                     </button>
                     <button 
                         onClick={() => setMobileViewMode('type')}
-                        className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg w-full transition-colors ${mobileViewMode === 'type' ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+                        className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg w-full transition-colors ${mobileViewMode === 'type' ? 'text-blue-400' : 'text-muted-foreground hover:text-foreground'}`}
                     >
                         <Type size={20} />
                         <span className="text-[10px] font-medium">Type</span>
                     </button>
                     <button 
                         onClick={() => setMobileViewMode('preview')}
-                        className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg w-full transition-colors ${mobileViewMode === 'preview' ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+                        className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg w-full transition-colors ${mobileViewMode === 'preview' ? 'text-blue-400' : 'text-muted-foreground hover:text-foreground'}`}
                     >
                         <div className="relative">
                             <Sparkles size={20} />
@@ -1000,10 +1059,10 @@ ${explanations.join("\n\\hrule\n")}
                     </div>
                 </Panel>
                 
-                <PanelResizeHandle className="w-1 bg-zinc-900 hover:bg-blue-500 transition-colors cursor-col-resize" />
+                <PanelResizeHandle className="w-1 bg-border hover:bg-blue-500 transition-colors cursor-col-resize" />
                 
                 <Panel defaultSize={50} minSize={30} className="h-full">
-                    <div className="h-full w-full bg-[#050505] overflow-hidden">
+                    <div className="h-full w-full bg-background overflow-hidden">
                     <Renderer 
                         content={content} 
                         settings={settings}
@@ -1016,17 +1075,17 @@ ${explanations.join("\n\\hrule\n")}
             ) : (
                 <>
                 <Panel defaultSize={50} minSize={30} className="h-full">
-                    <div className="h-full w-full bg-[#050505] overflow-hidden">
+                    <div className="h-full w-full bg-background overflow-hidden">
                     <Renderer 
                         content={content} 
                         settings={settings} 
                         analysisData={analysisData}
-                        onAnalysisUpdate={handleAnalysisUpdate}
+                        onAnalysisUpdate={handleAnalysisUpdate} 
                     />
                     </div>
                 </Panel>
                 
-                <PanelResizeHandle className="w-1 bg-zinc-900 hover:bg-blue-500 transition-colors cursor-col-resize" />
+                <PanelResizeHandle className="w-1 bg-border hover:bg-blue-500 transition-colors cursor-col-resize" />
                 
                 <Panel defaultSize={50} minSize={30} className="h-full relative">
                     <div className={`h-full w-full ${inputMode === 'text' ? 'block' : 'hidden'}`}>
@@ -1236,32 +1295,32 @@ ${explanations.join("\n\\hrule\n")}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+                    className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
                     onClick={() => setIsHistoryOpen(false)}
                 >
                     <motion.div 
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.9, opacity: 0 }}
-                        className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] relative"
+                        className="bg-card border border-border p-6 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] relative"
                         onClick={e => e.stopPropagation()}
                     >
                         <div className="flex justify-between items-center mb-4">
-                            <div className="flex items-center gap-2 text-xl font-bold text-white tracking-tight">
+                            <div className="flex items-center gap-2 text-xl font-bold text-foreground tracking-tight">
                                 <Clock size={20} className="text-blue-400" />
                                 {lang === 'en' ? 'History' : '历史记录'}
                             </div>
                             <div className="flex items-center gap-2">
                                 <button 
                                     onClick={clearHistory}
-                                    className="text-zinc-500 hover:text-red-400 transition-colors p-1"
+                                    className="text-muted-foreground hover:text-red-400 transition-colors p-1"
                                     title={lang === 'en' ? 'Clear History' : '清除历史'}
                                 >
-                                    <X size={18} />
+                                    <Trash2 size={18} />
                                 </button>
                                 <button 
                                     onClick={() => setIsHistoryOpen(false)}
-                                    className="text-zinc-500 hover:text-white transition-colors p-1"
+                                    className="text-muted-foreground hover:text-foreground transition-colors p-1"
                                     title={lang === 'en' ? 'Close' : '关闭'}
                                 >
                                     <X size={20} />
@@ -1275,49 +1334,49 @@ ${explanations.join("\n\\hrule\n")}
                                 placeholder={lang === 'en' ? 'Search history...' : '搜索历史...'}
                                 value={historySearch}
                                 onChange={(e) => setHistorySearch(e.target.value)}
-                                className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
+                                className="w-full bg-muted border border-border rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-blue-500 transition-colors"
                             />
                         </div>
                         
                         <div className="overflow-y-auto max-h-[60vh] custom-scrollbar">
                             {history.length === 0 ? (
-                                <div className="text-zinc-500 text-center py-8">
+                                <div className="text-muted-foreground text-center py-8">
                                     {lang === 'en' ? 'No history yet' : '暂无历史记录'}
                                 </div>
                             ) : (
-                                <div className="space-y-3">
+                                <div className="space-y-3 pb-4">
                                     {history
                                         .filter(item => item.title.toLowerCase().includes(historySearch.toLowerCase()))
                                         .map((item) => (
                                             <div 
                                                 key={item.id}
-                                                className="bg-zinc-800/50 border border-zinc-700/50 rounded-lg p-4 hover:bg-zinc-800 transition-colors"
+                                                className="bg-muted/50 border border-border/50 rounded-lg p-4 hover:bg-muted transition-colors"
                                             >
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <h3 className="text-sm font-medium text-zinc-200 truncate max-w-[80%]">
+                                                    <h3 className="text-sm font-medium text-foreground truncate max-w-[80%]">
                                                         {item.title}
                                                     </h3>
                                                     <div className="flex items-center gap-1">
                                                         <button 
                                                             onClick={() => loadFromHistory(item)}
-                                                            className="text-zinc-500 hover:text-blue-400 transition-colors p-1"
+                                                            className="text-muted-foreground hover:text-blue-400 transition-colors p-1"
                                                             title={lang === 'en' ? 'Load' : '加载'}
                                                         >
                                                             <Sparkles size={16} />
                                                         </button>
                                                         <button 
                                                             onClick={() => deleteFromHistory(item.id)}
-                                                            className="text-zinc-500 hover:text-red-400 transition-colors p-1"
+                                                            className="text-muted-foreground hover:text-red-400 transition-colors p-1"
                                                             title={lang === 'en' ? 'Delete' : '删除'}
                                                         >
                                                             <X size={16} />
                                                         </button>
                                                     </div>
                                                 </div>
-                                                <div className="text-xs text-zinc-500 mb-2">
+                                                <div className="text-xs text-muted-foreground mb-2">
                                                     {new Date(item.timestamp).toLocaleString()}
                                                 </div>
-                                                <div className="text-xs text-zinc-400 line-clamp-2">
+                                                <div className="text-xs text-muted-foreground line-clamp-2">
                                                     {item.content}
                                                 </div>
                                             </div>
@@ -1340,24 +1399,24 @@ ${explanations.join("\n\\hrule\n")}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+                    className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
                     onClick={() => setIsFormulaTableOpen(false)}
                 >
                     <motion.div 
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.9, opacity: 0 }}
-                        className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[80vh] relative"
+                        className="bg-card border border-border p-6 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[80vh] relative"
                         onClick={e => e.stopPropagation()}
                     >
                         <div className="flex justify-between items-center mb-4">
-                            <div className="flex items-center gap-2 text-xl font-bold text-white tracking-tight">
+                            <div className="flex items-center gap-2 text-xl font-bold text-foreground tracking-tight">
                                 <BookOpen size={20} className="text-blue-400" />
                                 {lang === 'en' ? 'Mathematical Formulas' : '数学公式'}
                             </div>
                             <button 
                                 onClick={() => setIsFormulaTableOpen(false)}
-                                className="text-zinc-500 hover:text-white transition-colors p-1"
+                                className="text-muted-foreground hover:text-foreground transition-colors p-1"
                                 title={lang === 'en' ? 'Close' : '关闭'}
                             >
                                 <X size={20} />
@@ -1367,12 +1426,12 @@ ${explanations.join("\n\\hrule\n")}
                         <div className="flex gap-4">
                             {/* Category Sidebar */}
                             <div className="w-48 flex-shrink-0">
-                                <div className="space-y-1">
+                                <div className="space-y-1 max-h-[60vh] overflow-y-auto custom-scrollbar">
                                     {Object.entries(mathFormulas).map(([key, category]) => (
                                         <button
                                             key={key}
                                             onClick={() => setSelectedFormulaCategory(key)}
-                                            className={`w-full text-left px-3 py-2 rounded-md transition-colors ${selectedFormulaCategory === key ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'}`}
+                                            className={`w-full text-left px-3 py-2 rounded-md transition-colors ${selectedFormulaCategory === key ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}
                                         >
                                             {category.name}
                                         </button>
@@ -1381,29 +1440,27 @@ ${explanations.join("\n\\hrule\n")}
                             </div>
                             
                             {/* Formula List */}
-                            <div className="flex-1 overflow-y-auto custom-scrollbar">
-                                <div className="space-y-4">
+                            <div className="flex-1 overflow-y-auto custom-scrollbar max-h-[60vh]">
+                                <div className="space-y-4 pb-4">
                                     {mathFormulas[selectedFormulaCategory as keyof typeof mathFormulas]?.formulas.map((formula, index) => (
                                         <div 
                                             key={index}
-                                            className="bg-zinc-800/50 border border-zinc-700/50 rounded-lg p-4 hover:bg-zinc-800 transition-colors"
+                                            className="bg-muted/50 border border-border/50 rounded-lg p-4 hover:bg-muted transition-colors"
                                         >
                                             <div className="flex justify-between items-start mb-2">
-                                                <h3 className="text-sm font-medium text-zinc-200">
+                                                <h3 className="text-sm font-medium text-foreground">
                                                     {formula.name}
                                                 </h3>
                                                 <button 
                                                     onClick={() => insertFormula(formula.latex)}
-                                                    className="text-zinc-500 hover:text-blue-400 transition-colors p-1"
+                                                    className="text-muted-foreground hover:text-blue-400 transition-colors p-1"
                                                     title={lang === 'en' ? 'Insert Formula' : '插入公式'}
                                                 >
                                                     <ArrowRightLeft size={16} />
                                                 </button>
                                             </div>
                                             <div className="text-center py-3">
-                                                <div className="text-lg">
-                                                    {formula.latex}
-                                                </div>
+                                                <div className="text-lg text-foreground" dangerouslySetInnerHTML={{ __html: katex.renderToString(formula.latex, { displayMode: true, throwOnError: false, trust: true }) }} />
                                             </div>
                                         </div>
                                     ))}
