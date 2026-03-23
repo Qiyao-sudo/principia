@@ -41,6 +41,10 @@ interface ConvertRequestBody {
 }
 
 function App() {
+  // 刷新（清屏）功能
+  const handleRefresh = () => {
+    window.location.reload();
+  };
   const [content, setContent] = useState<string>("")
   const [inputMode, setInputMode] = useState<'text' | 'handwriting'>('text');
   const [isRecognizing, setIsRecognizing] = useState(false);
@@ -833,7 +837,7 @@ ${explanations.join("\n\\hrule\n")}
       <header className="h-14 shrink-0 border-b border-border flex items-center justify-between px-4 sm:px-6 bg-background/50 backdrop-blur-md z-50">
         <div className="flex items-center gap-2">
           <button onClick={() => setIsLogoModalOpen(true)} className="outline-none hover:opacity-80 transition-opacity">
-            <img src="/favicon.png" alt="Logo" className="w-6 h-6 rounded-full bg-white" />
+            <img src="./favicon.png" alt="Logo" className="w-6 h-6 rounded-full bg-white" />
           </button>
           <span className="font-semibold tracking-tight text-foreground">Principia</span>
           <span className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] uppercase font-bold tracking-wider border border-border hidden sm:inline-block">Alpha</span>
@@ -1264,7 +1268,7 @@ ${explanations.join("\n\\hrule\n")}
                         <div className="flex flex-col items-center gap-6">
                             <div className="text-xl font-bold text-white tracking-tight">The Principia</div>
                             <div className="w-48 h-48 bg-white rounded-full flex items-center justify-center p-2 shadow-lg">
-                                <img src="/favicon.png" alt="Large Logo" className="w-full h-full object-contain rounded-full" />
+                                <img src="./favicon.png" alt="Large Logo" className="w-full h-full object-contain rounded-full" />
                             </div>
 
                             <a 
@@ -1475,6 +1479,19 @@ ${explanations.join("\n\\hrule\n")}
             </Portal>
         )}
       </AnimatePresence>
+
+      {/* 刷新按钮 */}
+      <button
+        onClick={handleRefresh}
+        className="fixed bottom-4 right-4 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors z-50"
+        title="刷新（清屏）"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="23 4 23 10 17 10" />
+          <polyline points="1 20 1 14 7 14" />
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+        </svg>
+      </button>
     </div>
   )
 }

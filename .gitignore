@@ -11,6 +11,7 @@ ENV/
 # Node.js
 principia/node_modules/
 principia/dist/
+principia/dist-electron/
 principia/dist-ssr/
 principia/*.local
 
