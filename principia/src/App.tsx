@@ -74,6 +74,12 @@ function App() {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileViewMode, setMobileViewMode] = useState<'write' | 'type' | 'preview'>('write');
   
+  // 检测是否在 Electron 环境中运行
+  const isElectron = window.process && window.process.versions && window.process.versions.electron;
+  
+  // API 基础 URL
+  const API_BASE_URL = isElectron ? 'http://localhost:8000' : '';
+
   // Theme State
   const [isDarkMode, setIsDarkMode] = useState(() => {
     // Check system preference or stored preference
@@ -285,7 +291,7 @@ function App() {
             body.visionConfig = settings.vision;
         }
 
-        const response = await fetch('/api/ocr', {
+        const response = await fetch(`${API_BASE_URL}/api/ocr`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
@@ -301,7 +307,7 @@ function App() {
             // Start polling for progress
             const pollingInterval = setInterval(async () => {
                 try {
-                    const progressResponse = await fetch(`/api/ocr/progress/${data.task_id}`);
+                    const progressResponse = await fetch(`${API_BASE_URL}/api/ocr/progress/${data.task_id}`);
                     if (!progressResponse.ok) throw new Error('Failed to get progress');
                     
                     const progressData = await progressResponse.json();
@@ -426,7 +432,7 @@ function App() {
                   body.visionConfig = settings.vision;
               }
 
-              const response = await fetch('/api/ocr', {
+              const response = await fetch(`${API_BASE_URL}/api/ocr`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(body)
@@ -493,7 +499,7 @@ function App() {
             body.reasoningConfig = settings.reasoning;
         }
 
-        const response = await fetch('/api/convert', {
+        const response = await fetch(`${API_BASE_URL}/api/convert`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
@@ -650,7 +656,7 @@ function App() {
               }
     
               // Call API to ensure content is in the correct format (and rewritten by AI)
-              const conversionResponse = await fetch('/api/convert', {
+              const conversionResponse = await fetch(`${API_BASE_URL}/api/convert`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(conversionBody)
