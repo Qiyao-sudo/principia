@@ -747,22 +747,7 @@ export const HandwritingCanvas = forwardRef<HandwritingCanvasRef, HandwritingCan
                 <RefreshCw size={18} />
               </button>
               
-              <button 
-                onClick={() => document.getElementById('image-upload')?.click()}
-                className={`p-2 transition-colors rounded-md ${isDarkMode ? 'text-zinc-400 hover:text-blue-400 hover:bg-zinc-800' : 'text-zinc-600 hover:text-blue-500 hover:bg-zinc-200'}`}
-                title="Upload Image"
-              >
-                <FileImage size={18} />
-              </button>
-              
-              <div className={`w-px h-5 ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'} mx-1`}></div>
-              <input 
-                type="file" 
-                id="image-upload" 
-                accept="image/*" 
-                className="hidden" 
-                onChange={handleImageUpload}
-              />
+
               
               <button
                 onClick={handleRecognize}
