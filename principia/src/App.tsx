@@ -1163,23 +1163,25 @@ ${explanations.join("\n\\hrule\n")}
                             {selectedImages.length > 0 && (
                                 <div className="mb-8">
                                     <h3 className="text-sm font-medium text-muted-foreground mb-3">{lang === 'en' ? 'Selected Images' : '已选择的图片'}</h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                        {imagePreviews.map((preview, index) => (
-                                            <div key={index} className="relative border border-border rounded-lg overflow-hidden">
-                                                <img src={preview} alt={`Preview ${index + 1}`} className="w-full h-40 object-cover" />
-                                                <button 
-                                                    className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full p-1 hover:bg-background transition-colors"
-                                                    onClick={() => {
-                                                        const newImages = selectedImages.filter((_, i) => i !== index);
-                                                        const newPreviews = imagePreviews.filter((_, i) => i !== index);
-                                                        setSelectedImages(newImages);
-                                                        setImagePreviews(newPreviews);
-                                                    }}
-                                                >
-                                                    <X size={16} />
-                                                </button>
-                                            </div>
-                                        ))}
+                                    <div className="max-h-80 overflow-y-auto pr-2">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                            {imagePreviews.map((preview, index) => (
+                                                <div key={index} className="relative border border-border rounded-lg overflow-hidden">
+                                                    <img src={preview} alt={`Preview ${index + 1}`} className="w-full h-40 object-cover" />
+                                                    <button 
+                                                        className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full p-1 hover:bg-background transition-colors"
+                                                        onClick={() => {
+                                                            const newImages = selectedImages.filter((_, i) => i !== index);
+                                                            const newPreviews = imagePreviews.filter((_, i) => i !== index);
+                                                            setSelectedImages(newImages);
+                                                            setImagePreviews(newPreviews);
+                                                        }}
+                                                    >
+                                                        <X size={16} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -1352,23 +1354,25 @@ ${explanations.join("\n\\hrule\n")}
                             {selectedImages.length > 0 && (
                                 <div className="mb-8">
                                     <h3 className="text-sm font-medium text-muted-foreground mb-3">{lang === 'en' ? 'Selected Images' : '已选择的图片'}</h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                        {imagePreviews.map((preview, index) => (
-                                            <div key={index} className="relative border border-border rounded-lg overflow-hidden">
-                                                <img src={preview} alt={`Preview ${index + 1}`} className="w-full h-40 object-cover" />
-                                                <button 
-                                                    className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full p-1 hover:bg-background transition-colors"
-                                                    onClick={() => {
-                                                        const newImages = selectedImages.filter((_, i) => i !== index);
-                                                        const newPreviews = imagePreviews.filter((_, i) => i !== index);
-                                                        setSelectedImages(newImages);
-                                                        setImagePreviews(newPreviews);
-                                                    }}
-                                                >
-                                                    <X size={16} />
-                                                </button>
-                                            </div>
-                                        ))}
+                                    <div className="max-h-80 overflow-y-auto pr-2">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                            {imagePreviews.map((preview, index) => (
+                                                <div key={index} className="relative border border-border rounded-lg overflow-hidden">
+                                                    <img src={preview} alt={`Preview ${index + 1}`} className="w-full h-40 object-cover" />
+                                                    <button 
+                                                        className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full p-1 hover:bg-background transition-colors"
+                                                        onClick={() => {
+                                                            const newImages = selectedImages.filter((_, i) => i !== index);
+                                                            const newPreviews = imagePreviews.filter((_, i) => i !== index);
+                                                            setSelectedImages(newImages);
+                                                            setImagePreviews(newPreviews);
+                                                        }}
+                                                    >
+                                                        <X size={16} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             )}
