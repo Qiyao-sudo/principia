@@ -648,21 +648,7 @@ export const HandwritingCanvas = forwardRef<HandwritingCanvasRef, HandwritingCan
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    // Create a FileReader to read the image
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const imageData = event.target?.result as string;
-      if (!imageData) return;
-
-      // Call the recognize function with the uploaded image
-      await onRecognize(imageData);
-    };
-    reader.readAsDataURL(file);
-  };
 
   return (
     <div className={`flex flex-col h-full w-full ${isDarkMode ? 'bg-[#0a0a0a] border-r border-zinc-900' : 'bg-[#ffffff] border-r border-zinc-200'} relative`} id="canvas-container">
