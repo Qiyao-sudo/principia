@@ -1130,11 +1130,12 @@ ${explanations.join("\n\\hrule\n")}
                                         id="image-upload"
                                         onChange={(e) => {
                                             const files = Array.from(e.target.files || []);
-                                            setSelectedImages(files);
+                                            // Add new files to existing list
+                                            setSelectedImages(prev => [...prev, ...files]);
                                             
-                                            // Generate previews
-                                            const previews = files.map(file => URL.createObjectURL(file));
-                                            setImagePreviews(previews);
+                                            // Generate previews for new files and add to existing list
+                                            const newPreviews = files.map(file => URL.createObjectURL(file));
+                                            setImagePreviews(prev => [...prev, ...newPreviews]);
                                         }}
                                     />
                                     <label htmlFor="image-upload" className="cursor-pointer">
@@ -1305,11 +1306,12 @@ ${explanations.join("\n\\hrule\n")}
                                         id="image-upload"
                                         onChange={(e) => {
                                             const files = Array.from(e.target.files || []);
-                                            setSelectedImages(files);
+                                            // Add new files to existing list
+                                            setSelectedImages(prev => [...prev, ...files]);
                                             
-                                            // Generate previews
-                                            const previews = files.map(file => URL.createObjectURL(file));
-                                            setImagePreviews(previews);
+                                            // Generate previews for new files and add to existing list
+                                            const newPreviews = files.map(file => URL.createObjectURL(file));
+                                            setImagePreviews(prev => [...prev, ...newPreviews]);
                                         }}
                                     />
                                     <label htmlFor="image-upload" className="cursor-pointer">
