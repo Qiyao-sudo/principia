@@ -1130,18 +1130,31 @@ ${explanations.join("\n\\hrule\n")}
                                         id="image-upload"
                                         onChange={(e) => {
                                             const files = Array.from(e.target.files || []);
-                                            // Add new files to existing list
-                                            setSelectedImages(prev => [...prev, ...files]);
+                                            // Check if adding new files would exceed the limit
+                                            setSelectedImages(prev => {
+                                                const total = prev.length + files.length;
+                                                if (total > 9) {
+                                                    const allowedFiles = files.slice(0, 9 - prev.length);
+                                                    alert(lang === 'en' ? `Maximum 9 images allowed. Only ${allowedFiles.length} additional images added.` : `最多允许9张图片。仅添加了${allowedFiles.length}张额外图片。`);
+                                                    return [...prev, ...allowedFiles];
+                                                }
+                                                return [...prev, ...files];
+                                            });
                                             
                                             // Generate previews for new files and add to existing list
-                                            const newPreviews = files.map(file => URL.createObjectURL(file));
-                                            setImagePreviews(prev => [...prev, ...newPreviews]);
+                                            setImagePreviews(prev => {
+                                                const currentCount = prev.length;
+                                                const maxAllowed = 9 - currentCount;
+                                                const filesToAdd = files.slice(0, maxAllowed);
+                                                const newPreviews = filesToAdd.map(file => URL.createObjectURL(file));
+                                                return [...prev, ...newPreviews];
+                                            });
                                         }}
                                     />
                                     <label htmlFor="image-upload" className="cursor-pointer">
                                         <Image size={48} className="mx-auto text-muted-foreground mb-2" />
                                         <p className="text-sm text-muted-foreground">{lang === 'en' ? 'Click to select images or drag and drop' : '点击选择图片或拖放'}</p>
-                                        <p className="text-xs text-muted-foreground mt-1">{lang === 'en' ? 'Supports JPG, PNG, GIF' : '支持 JPG, PNG, GIF'}</p>
+                                        <p className="text-xs text-muted-foreground mt-1">{lang === 'en' ? `${selectedImages.length}/9 images` : `${selectedImages.length}/9 张图片`}</p>
                                     </label>
                                 </div>
                             </div>
@@ -1306,18 +1319,31 @@ ${explanations.join("\n\\hrule\n")}
                                         id="image-upload"
                                         onChange={(e) => {
                                             const files = Array.from(e.target.files || []);
-                                            // Add new files to existing list
-                                            setSelectedImages(prev => [...prev, ...files]);
+                                            // Check if adding new files would exceed the limit
+                                            setSelectedImages(prev => {
+                                                const total = prev.length + files.length;
+                                                if (total > 9) {
+                                                    const allowedFiles = files.slice(0, 9 - prev.length);
+                                                    alert(lang === 'en' ? `Maximum 9 images allowed. Only ${allowedFiles.length} additional images added.` : `最多允许9张图片。仅添加了${allowedFiles.length}张额外图片。`);
+                                                    return [...prev, ...allowedFiles];
+                                                }
+                                                return [...prev, ...files];
+                                            });
                                             
                                             // Generate previews for new files and add to existing list
-                                            const newPreviews = files.map(file => URL.createObjectURL(file));
-                                            setImagePreviews(prev => [...prev, ...newPreviews]);
+                                            setImagePreviews(prev => {
+                                                const currentCount = prev.length;
+                                                const maxAllowed = 9 - currentCount;
+                                                const filesToAdd = files.slice(0, maxAllowed);
+                                                const newPreviews = filesToAdd.map(file => URL.createObjectURL(file));
+                                                return [...prev, ...newPreviews];
+                                            });
                                         }}
                                     />
                                     <label htmlFor="image-upload" className="cursor-pointer">
                                         <Image size={48} className="mx-auto text-muted-foreground mb-2" />
                                         <p className="text-sm text-muted-foreground">{lang === 'en' ? 'Click to select images or drag and drop' : '点击选择图片或拖放'}</p>
-                                        <p className="text-xs text-muted-foreground mt-1">{lang === 'en' ? 'Supports JPG, PNG, GIF' : '支持 JPG, PNG, GIF'}</p>
+                                        <p className="text-xs text-muted-foreground mt-1">{lang === 'en' ? `${selectedImages.length}/9 images` : `${selectedImages.length}/9 张图片`}</p>
                                     </label>
                                 </div>
                             </div>
