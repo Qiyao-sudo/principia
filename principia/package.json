@@ -27,6 +27,7 @@
   "build": {
     "appId": "com.principia.app",
     "productName": "Principia",
+    "artifactName": "Principia-${os}-${version}${ext}",
     "directories": {
       "output": "dist-electron"
     },
@@ -51,7 +52,11 @@
     ],
     "win": {
       "target": ["nsis", "portable"],
-      "icon": "public/favicon.png"
+      "icon": "public/favicon.png",
+      "artifactName": "Principia-${os}-${version}-Setup.${ext}"
+    },
+    "portable": {
+      "artifactName": "Principia-${os}-${version}.${ext}"
     },
     "mac": {
       "target": ["dmg", "zip"],
