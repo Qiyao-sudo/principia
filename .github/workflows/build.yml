@@ -1,54 +1,53 @@
-name: Build and Test
+name: Build
+
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+
     steps:
     - uses: actions/checkout@v4
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
+
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22'  # 升级Node.js适配依赖要求
-        cache: 'npm'  # 缓存npm依赖，加速构建
-    - name: Install Python dependencies
+        node-version: '22'
+        cache: 'npm'
+
+    # 1. 打包 Python 后端 (根目录执行，因为 principia 是子目录)
+    - name: Build Python backend
       run: |
-        python -m pip install --upgrade pip
-        pip install pyinstaller
-        cd principia
-        pip install -r requirements.txt  # 仅执行一次依赖安装，删除冗余步骤
-    - name: Build backend
-      run: |
-        cd principia
-        # 输出到根目录electron文件夹，适配Electron-Builder读取路径
-        pyinstaller --onefile --name app app.py --distpath ../electron
-      shell: bash
-    - name: Install Node.js dependencies
-      run: |
-        cd principia
-        npm install
-    - name: Build frontend
-      run: |
-        cd principia
-        npm run build
-    - name: Build Electron app
-      run: |
-        cd principia
-        npm run electron:build
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        pip install --upgrade pip pyinstaller
+        pyinstaller --onefile --name app principia/app.py --distpath electron
+
+    # 2. 安装 Node 依赖 (根目录)
+    - name: Install Dependencies
+      run: npm install
+
+    # 3. 构建前端 (根目录)
+    - name: Build Frontend
+      run: npm run build
+
+    # 4. 打包 Electron (根目录)
+    - name: Build Electron
+      run: npm run electron:build
+
+    # 5. 上传产物
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: principia-${{ matrix.os }}
-        path: principia/dist-electron
+        path: dist-electron/
