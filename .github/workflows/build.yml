@@ -5,6 +5,11 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.3.0)'
+        required: true
 
 jobs:
   build:
@@ -45,13 +50,6 @@ jobs:
       with:
         node-version: '20'
 
-    - name: Get version from package.json
-      id: get-version
-      run: |
-        cd principia
-        VERSION=$(node -p "require('./package.json').version")
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-
     - name: Install Node.js dependencies
       run: |
         cd principia
@@ -72,12 +70,13 @@ jobs:
     - name: Create unpacked zip
       run: |
         cd principia/dist-electron
+        VERSION=${{ github.event.inputs.version || '1.3.0' }}
         if [ "${{ matrix.os }}" == "windows-latest" ]; then
-          7z a "Principia-${{ matrix.os }}-${{ steps.get-version.outputs.version }}-unpacked.zip" "win-unpacked"
+          7z a "Principia-${{ matrix.os }}-$VERSION-unpacked.zip" "win-unpacked"
         elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-          zip -r "Principia-${{ matrix.os }}-${{ steps.get-version.outputs.version }}-unpacked.zip" "mac-unpacked"
+          zip -r "Principia-${{ matrix.os }}-$VERSION-unpacked.zip" "mac-unpacked"
         else
-          zip -r "Principia-${{ matrix.os }}-${{ steps.get-version.outputs.version }}-unpacked.zip" "linux-unpacked"
+          zip -r "Principia-${{ matrix.os }}-$VERSION-unpacked.zip" "linux-unpacked"
         fi
       shell: bash
 
@@ -86,3 +85,23 @@ jobs:
       with:
         name: principia-${{ matrix.os }}
         path: principia/dist-electron
+
+    - name: Create GitHub Release
+      if: github.event_name == 'workflow_dispatch'
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs');
+          const version = '${{ github.event.inputs.version }}';
+          const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
+          
+          await github.rest.repos.createRelease({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            tag_name: `v${version}`,
+            name: `Release v${version}`,
+            body: changelog,
+            draft: false,
+            prerelease: false
+          });
