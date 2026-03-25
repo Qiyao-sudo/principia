@@ -1,15 +1,7 @@
 name: Build and Test
 
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version number (e.g., 1.3.0)'
-        required: true
 
 jobs:
   build:
@@ -67,41 +59,8 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Create unpacked zip
-      run: |
-        cd principia/dist-electron
-        VERSION=${{ github.event.inputs.version || '1.3.0' }}
-        if [ "${{ matrix.os }}" == "windows-latest" ]; then
-          7z a "Principia-${{ matrix.os }}-$VERSION-unpacked.zip" "win-unpacked"
-        elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-          zip -r "Principia-${{ matrix.os }}-$VERSION-unpacked.zip" "mac-unpacked"
-        else
-          zip -r "Principia-${{ matrix.os }}-$VERSION-unpacked.zip" "linux-unpacked"
-        fi
-      shell: bash
-
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: principia-${{ matrix.os }}
         path: principia/dist-electron
-
-    - name: Create GitHub Release
-      if: github.event_name == 'workflow_dispatch'
-      uses: actions/github-script@v6
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const fs = require('fs');
-          const version = '${{ github.event.inputs.version }}';
-          const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
-          
-          await github.rest.repos.createRelease({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            tag_name: `v${version}`,
-            name: `Release v${version}`,
-            body: changelog,
-            draft: false,
-            prerelease: false
-          });
