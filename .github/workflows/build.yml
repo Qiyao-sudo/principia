@@ -6,9 +6,15 @@ on:
       release_tag:
         required: true
         type: string
+        description: 发布标签-版本号
+      release_version:
+        required: true
+        type: string
+        description: 发布版本号
       primary_version:
         required: true
         type: string
+        description: 大版本号
       is_test_mode:
         required: false
         default: false
@@ -104,7 +110,7 @@ jobs:
       - name: 设置版本号
         run: |
           cd principia
-          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json'));p.version='${{ inputs.release_tag }}';fs.writeFileSync('package.json',JSON.stringify(p,null,2));"
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json'));p.version='${{ inputs.release_version }}';fs.writeFileSync('package.json',JSON.stringify(p,null,2));"
         shell: bash
 
       - name: 构建前端
@@ -136,7 +142,7 @@ jobs:
       - name: 上传 解压文件夹
         uses: actions/upload-artifact@v4
         with:
-          name: principia-${{ inputs.release_tag }}-${{ matrix.platform }}-${{ matrix.arch }}-unpacked
+          name: principia-${{ inputs.release_version }}-${{ matrix.platform }}-${{ matrix.arch }}-unpacked
           path: principia/dist-electron/*-unpacked/**
           if-no-files-found: warn
 
@@ -146,7 +152,7 @@ jobs:
       - name: 上传 安装包
         uses: actions/upload-artifact@v4
         with:
-          name: principia-${{ inputs.release_tag }}-${{ matrix.platform }}-${{ matrix.arch }}-executable
+          name: principia-${{ inputs.release_version }}-${{ matrix.platform }}-${{ matrix.arch }}-executable
           path: |
             principia/dist-electron/*.exe
             principia/dist-electron/*.AppImage
@@ -170,7 +176,7 @@ jobs:
       - name: 读取 ChangeLog
         id: changelog
         run: |
-          body=$(cat principia/doc/ChangeLogs/${{ inputs.primary_version }}/${{ inputs.release_tag }}/App.md)
+          body=$(cat principia/doc/ChangeLogs/${{ inputs.primary_version }}/${{ inputs.release_version }}/App.md)
           echo "body<<EOF" >> $GITHUB_OUTPUT
           echo "$body" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -187,7 +193,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.release_tag }}
-          name: Release v${{ inputs.release_tag }}
+          name: Release v${{ inputs.release_version }}
           body: ${{ steps.changelog.outputs.body }}
           files: |
             artifacts/**/*
