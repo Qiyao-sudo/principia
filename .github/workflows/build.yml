@@ -142,7 +142,11 @@ jobs:
       - name: 压缩未打包文件夹
         run: |
           cd principia/dist-electron
-          tar -czf ../principia-${{ inputs.release_version }}-${{ matrix.platform }}-${{ matrix.arch }}-unpacked.tar.gz *-unpacked
+          if ls *-unpacked 1> /dev/null 2>&1; then
+            tar -czf ../principia-${{ inputs.release_version }}-${{ matrix.platform }}-${{ matrix.arch }}-unpacked.tar.gz *-unpacked
+          else
+            echo "::warning::未找到未打包文件夹，跳过压缩"
+          fi
         shell: bash
 
       # ==========================
