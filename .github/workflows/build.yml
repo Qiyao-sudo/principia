@@ -201,7 +201,7 @@ jobs:
       - name: 读取 ChangeLog
         id: changelog
         run: |
-          body=$(cat principia/doc/ChangeLogs/${{ inputs.primary_version }}/${{ inputs.release_version }}/App.md)
+          body=$(cat doc/ChangeLogs/${{ inputs.primary_version }}/${{ inputs.release_version }}/App.md)
           echo "body<<EOF" >> $GITHUB_OUTPUT
           echo "$body" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
