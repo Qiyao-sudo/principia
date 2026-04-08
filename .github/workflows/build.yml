@@ -52,7 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # ==========================
-      # Python 环境
+      # Python 环境（原逻辑不变）
       # ==========================
       - name: 设置 Python 3.12
         uses: actions/setup-python@v5
@@ -67,7 +67,7 @@ jobs:
           pip install -r requirements.txt
         shell: bash
       # ==========================
-      # 【关键修复】跨架构打包Python（无QEMU、无报错）
+      # 构建 Python 后端（原逻辑不变）
       # ==========================
       - name: 构建 Python 后端
         run: |
@@ -87,7 +87,7 @@ jobs:
           fi
         shell: bash
       # ==========================
-      # Node.js + Electron
+      # Node.js + Electron（原逻辑不变）
       # ==========================
       - name: 设置 Node.js 20
         uses: actions/setup-node@v4
@@ -105,7 +105,7 @@ jobs:
         run: cd principia && npm run build
         shell: bash
       # ==========================
-      # 跨架构构建Electron
+      # 跨架构构建Electron（原逻辑不变）
       # ==========================
       - name: 构建 Electron 应用
         run: |
@@ -123,7 +123,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # ==========================
-      # 压缩未打包文件夹（完全保留原脚本写法，未做任何修改）
+      # 压缩未打包文件夹（原逻辑完全保留，无任何修改）
       # ==========================
       - name: 压缩未打包文件夹
         run: |
@@ -135,20 +135,38 @@ jobs:
           fi
         shell: bash
       # ==========================
-      # 【新增】压缩可执行文件/安装包（和原上传规则一致，命名对齐）
+      # 【修复核心】压缩可执行文件/安装包（解决找不到文件问题）
       # ==========================
       - name: 压缩可执行文件/安装包
         run: |
-          cd principia/dist-electron
-          # 匹配原脚本中所有要上传的可执行/安装包，做存在性判断
-          if ls *.exe *.AppImage *.dmg *.app 1> /dev/null 2>&1; then
-            # 打包时排除原脚本指定的无用文件，压缩包命名和unpacked对齐
-            tar -czf ../principia-${{ inputs.release_version }}-${{ matrix.platform }}-${{ matrix.arch }}-executable.tar.gz \
-              *.exe *.AppImage *.dmg *.app \
+          set -euo pipefail
+          # 固定目标目录，和Electron构建输出一致
+          TARGET_DIR="principia/dist-electron"
+          # 先判断目录是否存在，避免cd失败
+          if [ ! -d "$TARGET_DIR" ]; then
+            echo "::warning::目录 $TARGET_DIR 不存在，跳过可执行文件压缩"
+            exit 0
+          fi
+          cd "$TARGET_DIR"
+          # 【关键修复】用find精准匹配文件，替代原ls（避免通配符无匹配报错，支持多平台）
+          # 匹配规则和原上传完全一致，仅找指定可执行/安装包，排除无用文件
+          find . -maxdepth 1 -type f \
+            \( -name "*.exe" -o -name "*.AppImage" -o -name "*.dmg" -o -name "*.app" \) \
+            -not -name "Principia Setup *.exe" -not -name "*.deb" -not -name "*.pkg" \
+            -not -name "*.yml" -not -name "*.blockmap" | grep -q .
+          # 上面find命令返回0表示找到文件，1表示未找到
+          if [ $? -eq 0 ]; then
+            # 打包所有匹配到的文件，压缩包命名和unpacked对齐
+            tar -czf "../principia-${{ inputs.release_version }}-${{ matrix.platform }}-${{ matrix.arch }}-executable.tar.gz" \
               --exclude="Principia Setup *.exe" --exclude="*.deb" --exclude="*.pkg" \
-              --exclude="*.yml" --exclude="*.blockmap"
+              --exclude="*.yml" --exclude="*.blockmap" \
+              *.exe *.AppImage *.dmg *.app
+            echo "✅ 找到可执行文件，压缩完成：principia-${{ inputs.release_version }}-${{ matrix.platform }}-${{ matrix.arch }}-executable.tar.gz"
           else
-            echo "::warning::未找到可执行文件/安装包，跳过压缩"
+            echo "::warning::❌ 在 $TARGET_DIR 未找到可执行文件/安装包，跳过压缩"
+            # 列出目录所有文件，便于CI日志排查
+            echo "📂 目录下现有文件："
+            ls -la
           fi
         shell: bash
       # ==========================
@@ -161,7 +179,7 @@ jobs:
           path: principia/principia-${{ inputs.release_version }}-${{ matrix.platform }}-${{ matrix.arch }}-unpacked.tar.gz
           if-no-files-found: warn
       # ==========================
-      # 上传2：新增 可执行文件压缩包（和unpacked上传逻辑一致）
+      # 上传2：可执行文件压缩包（原新增逻辑不变）
       # ==========================
       - name: 上传 可执行文件压缩包
         uses: actions/upload-artifact@v4
@@ -170,14 +188,13 @@ jobs:
           path: principia/principia-${{ inputs.release_version }}-${{ matrix.platform }}-${{ matrix.arch }}-executable.tar.gz
           if-no-files-found: warn
   release:
-    needs: build  # 依赖build任务完成
-    if: ${{ inputs.is_test_mode == false }}  # 仅非测试模式执行
+    needs: build
+    if: ${{ inputs.is_test_mode == false }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 拉取所有提交记录
-      # 读取 ChangeLog 文件作为 release body
+          fetch-depth: 0
       - name: 读取 ChangeLog
         id: changelog
         run: |
@@ -186,12 +203,10 @@ jobs:
           echo "$body" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
         shell: bash
-      # 下载所有构建产物（包含unpacked+可执行文件压缩包）
       - name: 下载所有构建产物
         uses: actions/download-artifact@v4
         with:
           path: artifacts
-      # 发布Release并上传所有压缩包（unpacked+可执行文件一起发布）
       - name: 发布 GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -200,7 +215,7 @@ jobs:
           body: ${{ steps.changelog.outputs.body }}
           files: |
             artifacts/**/*
-          draft: false  # 非草稿
-          prerelease: false  # 非预发布
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
