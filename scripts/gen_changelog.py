@@ -31,6 +31,27 @@ Git Tag：{current_tag}
 
 提交记录详情：
 {commit_content}
+格式参考以下:
+# 📝 版本更新日志
+## [version-1.3.0] - 2026-03-25
+
+### ✨ 新增功能
+- 🌓新增明暗主题切换功能，优化界面视觉体验
+- 🎨 新增画板颜色切换逻辑，支持随主题动态适配
+- 📦 新增Electron构建配置与构建脚本，完善打包流程
+
+### 🐛 问题修复
+- 🔧 修复跨平台后端启动命令兼容性问题
+- 📂 修正 app.py 中错误的路径指向配置
+- 🧹 清理未使用的冗余函数，消除潜在构建失败风险
+
+### 🚀 功能优化
+- 🎭 统一界面硬编码颜色值为主题变量，提升视觉风格一致性
+- 🎛️ 调整语言切换图标位置，优化操作交互逻辑
+- 📐 优化窗口布局设计，提升界面整体整洁度
+
+...
+
 """
 
 # 请求DeepSeek API
@@ -52,7 +73,7 @@ result = resp.json()
 changelog_md = result["choices"][0]["message"]["content"]
 
 # 创建目标目录：doc/{主版本号}/{版本号}/
-save_dir = Path(f"doc/{main_version}/{sub_version}")
+save_dir = Path(f"doc/Changelogs/{main_version}/{sub_version}")
 save_dir.mkdir(parents=True, exist_ok=True)
 
 # 写入App.md文件
