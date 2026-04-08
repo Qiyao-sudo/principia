@@ -97,7 +97,7 @@ jobs:
           SUB_VERSION: ${{ github.event.inputs.sub_version }}
           CURRENT_TAG: ${{ steps.process_tag.outputs.current_tag }}
         run: |
-          python3 .github/scripts/gen_changelog.py
+          python3 scripts/gen_changelog.py
 
       - name: 提交&推送Changelog文件
         run: |
