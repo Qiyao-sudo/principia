@@ -135,7 +135,9 @@ jobs:
             echo "::warning::未找到未打包文件夹，跳过压缩"
           fi
         shell: bash
-
+      # ==========================
+      # 【最终彻底修复】压缩可执行文件/安装包（解决空格+通配符+跨平台问题）
+      # ==========================
       - name: 压缩可执行文件/安装包
         run: |
           set -euo pipefail
@@ -146,22 +148,26 @@ jobs:
             exit 0
           fi
           cd "$TARGET_DIR"
-    
-          # 定义文件匹配规则（复用变量，避免重复写）
-          FILE_PATTERNS="( -name *.exe -o -name *.AppImage -o -name *.dmg -o -name *.app )"
-          EXCLUDE_PATTERNS="-not -name 'Principia Setup *.exe' -not -name *.deb -not -name *.pkg -not -name *.yml -not -name *.blockmap"
-    
-          # 判断是否有文件
-          if find . -maxdepth 1 -type f $FILE_PATTERNS $EXCLUDE_PATTERNS -print0 | grep -qz .; then
-            # 核心修复：用 -exec tar 直接打包，去掉路径前缀，文件名干净无 .\
-            find . -maxdepth 1 -type f $FILE_PATTERNS $EXCLUDE_PATTERNS \
-              -exec tar -C "$TARGET_DIR" -czf "../principia-${{ inputs.release_version }}-${{ matrix.platform }}-${{ matrix.arch }}-executable.tar.gz" {} +
-      
-            echo "✅ 可执行文件压缩完成（文件名无路径前缀）"
-      
-            # 打印打包的文件列表
+          # 关键：用-print0输出null分隔的文件列表，find判断是否有文件
+          if find . -maxdepth 1 -type f \
+            \( -name "*.exe" -o -name "*.AppImage" -o -name "*.dmg" -o -name "*.app" \) \
+            -not -name "Principia Setup *.exe" -not -name "*.deb" -not -name "*.pkg" \
+            -not -name "*.yml" -not -name "*.blockmap" -print0 | grep -qz .; then
+            # 核心：xargs -0 传递null分隔文件，tar -T - 从标准输入读文件，完美支持空格
+            find . -maxdepth 1 \( -type f -o -type d \) \
+            \( -name "*.exe" -o -name "*.AppImage" -o -name "*.dmg" -o -name "*.app" \) \
+            -not -name "Principia Setup *.exe" -not -name "*.deb" -not -name "*.pkg" \
+            -not -name "*.yml" -not -name "*.blockmap" -print0 \
+            | sed -z 's|^\./||' \
+            | xargs -0 tar -czf "../principia-${{ inputs.release_version }}-${{ matrix.platform }}-${{ matrix.arch }}-executable.tar.gz" -T -
+
+            echo "✅ 可执行文件压缩完成（支持带空格文件名）"
+            # 可选：打印打包的文件列表，便于排查
             echo "🔍 打包的文件："
-            find . -maxdepth 1 -type f $FILE_PATTERNS $EXCLUDE_PATTERNS
+            find . -maxdepth 1 -type f \
+              \( -name "*.exe" -o -name "*.AppImage" -o -name "*.dmg" -o -name "*.app" \) \
+              -not -name "Principia Setup *.exe" -not -name "*.deb" -not -name "*.pkg" \
+              -not -name "*.yml" -not -name "*.blockmap"
           else
             echo "::warning::❌ 在 $TARGET_DIR 未找到可执行文件/安装包，跳过压缩"
             echo "📂 目录下现有文件："
