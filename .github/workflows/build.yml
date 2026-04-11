@@ -157,7 +157,7 @@ jobs:
             find . -maxdepth 1 -type f \
               \( -name "*.exe" -o -name "*.AppImage" -o -name "*.dmg" -o -name "*.app" \) \
               -not -name "Principia Setup *.exe" -not -name "*.deb" -not -name "*.pkg" \
-              -not -name "*.yml" -not -name "*.blockmap" -print0 | xargs -0 tar -czf "../principia-${{ inputs.release_version }}-${{ matrix.platform }}-${{ matrix.arch }}-executable.tar.gz" -T -
+              -not -name "*.yml" -not -name "*.blockmap" -print0 | xargs -0 tar -czf "../principia-${{ inputs.release_version }}-${{ matrix.platform }}-${{ matrix.arch }}-executable.tar.gz" --transform='s|^\./||' -T -
             echo "✅ 可执行文件压缩完成（支持带空格文件名）"
             # 可选：打印打包的文件列表，便于排查
             echo "🔍 打包的文件："
