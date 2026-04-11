@@ -148,32 +148,30 @@ jobs:
             exit 0
           fi
           cd "$TARGET_DIR"
-          # 关键：用-print0输出null分隔的文件列表，find判断是否有文件
-          if find . -maxdepth 1 -type f \
+          # 关键：用*做搜索根，直接输出无前缀文件名，兼容BSD/GNU工具链
+          if find * -maxdepth 0 \( -type f -o -type d \) \
             \( -name "*.exe" -o -name "*.AppImage" -o -name "*.dmg" -o -name "*.app" \) \
             -not -name "Principia Setup *.exe" -not -name "*.deb" -not -name "*.pkg" \
-            -not -name "*.yml" -not -name "*.blockmap" -print0 | grep -qz .; then
-            # 核心：xargs -0 传递null分隔文件，tar -T - 从标准输入读文件，完美支持空格
-            find . -maxdepth 1 \( -type f -o -type d \) \
-            \( -name "*.exe" -o -name "*.AppImage" -o -name "*.dmg" -o -name "*.app" \) \
-            -not -name "Principia Setup *.exe" -not -name "*.deb" -not -name "*.pkg" \
-            -not -name "*.yml" -not -name "*.blockmap" -print0 \
-            | sed -z 's|^\./||' \
-            | xargs -0 tar -czf "../principia-${{ inputs.release_version }}-${{ matrix.platform }}-${{ matrix.arch }}-executable.tar.gz" -T -
-
-            echo "✅ 可执行文件压缩完成（支持带空格文件名）"
-            # 可选：打印打包的文件列表，便于排查
-            echo "🔍 打包的文件："
-            find . -maxdepth 1 -type f \
+            -not -name "*.yml" -not -name "*.blockmap" -print0 2>/dev/null | grep -qz .; then
+            # 不需要任何路径转换参数，直接打包
+            find * -maxdepth 0 \( -type f -o -type d \) \
               \( -name "*.exe" -o -name "*.AppImage" -o -name "*.dmg" -o -name "*.app" \) \
               -not -name "Principia Setup *.exe" -not -name "*.deb" -not -name "*.pkg" \
-              -not -name "*.yml" -not -name "*.blockmap"
+              -not -name "*.yml" -not -name "*.blockmap" -print0 2>/dev/null | xargs -0 tar -czf "../principia-${{ inputs.release_version }}-${{ matrix.platform }}-${{ matrix.arch }}-executable.tar.gz" -T -
+            echo "✅ 可执行文件压缩完成（支持带空格文件名）"
+            # 打印打包的文件列表
+            echo "🔍 打包的文件："
+            find * -maxdepth 0 \( -type f -o -type d \) \
+              \( -name "*.exe" -o -name "*.AppImage" -o -name "*.dmg" -o -name "*.app" \) \
+              -not -name "Principia Setup *.exe" -not -name "*.deb" -not -name "*.pkg" \
+              -not -name "*.yml" -not -name "*.blockmap" 2>/dev/null
           else
             echo "::warning::❌ 在 $TARGET_DIR 未找到可执行文件/安装包，跳过压缩"
             echo "📂 目录下现有文件："
             ls -la
           fi
         shell: bash
+
 
 
       # ==========================
